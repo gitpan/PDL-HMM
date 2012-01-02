@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               PDL-HMM
-version:            0.06
+version:            0.06001
 abstract:           PDL Hidden Markov Model utilities
 author:
     - Bryan Jurish
