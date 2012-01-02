@@ -13,7 +13,7 @@ use DynaLoader;
 
 
 
-   $PDL::HMM::VERSION = 0.0501;
+   $PDL::HMM::VERSION = 0.06;
    @ISA    = ( 'PDL::Exporter','DynaLoader' );
    push @PDL::Core::PP, __PACKAGE__;
    bootstrap PDL::HMM $VERSION;
@@ -143,6 +143,7 @@ logzero() handles bad values.  The state of the output PDL is always good.
 
 
 
+
 =head2 logadd
 
 =for sig
@@ -167,6 +168,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 *logadd = \&PDL::logadd;
+
 
 
 
@@ -199,6 +201,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 
+
 =head2 logsumover
 
 =for sig
@@ -225,6 +228,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 *logsumover = \&PDL::logsumover;
 
 
+
 =pod
 
 =head1 Sequence Probability
@@ -248,7 +252,9 @@ Output (pseudocode) for all 0<=i<N, 0<=t<T:
 
  $alpha(i,t) = log P( $o(0:t), q(t)==i | @theta )
 
-Note that:
+Note that the final-state probability vector $omega() is neither
+passed to this function nor used in the computation, but
+can be used to compute the final sequence probability for $o as:
 
   log P( $o | @theta ) = logsumover( $omega() + $alpha(:,t-1) )
 
@@ -268,6 +274,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 *hmmfw = \&PDL::hmmfw;
+
 
 
 *hmmalpha = \&hmmfw;
@@ -290,7 +297,9 @@ Output (pseudocode) for all 0<=qi<Q, 0<=t<T:
 
  $alphaq(qi,t) = log P( $o(0:t), q(t)==$oq(qi,t) | @theta )
 
-Note that:
+Note that the final-state probability vector $omega() is neither
+passed to this function nor used in the computation, but
+can be used to compute the final sequence probability for $o as:
 
   log P( $o | @theta ) = logsumover( $alphaq(:,t-1) + $omega($oqTi) )
 
@@ -316,6 +325,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 *hmmfwq = \&PDL::hmmfwq;
 
 
+
 *hmmalphaq = \&hmmfwq;
 
 
@@ -334,9 +344,11 @@ Output (pseudocode) for all 0<=i<N, 0<=t<T:
 
  $beta(i,t) = log P( $o(t+1:T-1) | q(t)==i, @theta )
 
-Note that:
+Note that the initial-state probability vector $pi() is neither
+passed to this function nor used in the computation, but
+can be used to compute the final sequence probability for $o as:
 
-  log P( $o | @theta ) = logsumover( $pi() + $b(:,$o(0)) $beta(:,0) )
+  log P( $o | @theta ) = logsumover( $pi() + $b(:,$o(0)) + $beta(:,0) )
 
 
 
@@ -354,6 +366,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 *hmmbw = \&PDL::hmmbw;
+
 
 
 *hmmbeta = \&hmmbw;
@@ -376,7 +389,9 @@ Output (pseudocode) for all 0<=qi<Q, 0<=t<T:
 
  $betaq(qi,t) = log P( $o(t+1:T-1) | q(t)==$oq(qi,t), @theta )
 
-Note that:
+Note that the initial-state probability vector $pi() is neither
+passed to this function nor used in the computation, but
+can be used to compute the final sequence probability for $o as:
 
   log P( $o | @theta ) = logsumover( $betaq(:,0) + $pi($oq0i) + $b($oq0i,$o(0)) )
 
@@ -400,6 +415,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 *hmmbwq = \&PDL::hmmbwq;
+
 
 
 *hmmbetaq = \&hmmbwq;
@@ -450,7 +466,7 @@ Compute partial Baum-Welch re-estimation of the model @theta = ($a, $b, $pi, $om
 for the observation sequence $o() with forward- and backward-probability
 matrices $alpha(), $beta().  Result is recorded as log pseudo-frequencies
 in the expectation matrices $ea(), $eb(), $epi(), and $eomega(), which are required parameters,
-and should have been initialized (e.g. by hmmexpect0()) before calling this function.
+and should have been initialized (e.g. by L</hmmexpect0>()) before calling this function.
 
 Can safely be called sequentially for incremental reestimation.
 
@@ -473,6 +489,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 
+
 =head2 hmmexpectq
 
 =for sig
@@ -487,7 +504,7 @@ considering only the initial non-negative state
 indices in $oq(:,t) for observation $o(t).
 Result is recorded as log pseudo-frequencies
 in the expectation matrices $ea(), $eb(), $epi(), and $eomega(), which are required parameters,
-and should have been initialized (e.g. by hmmexpect0()) before calling this function.
+and should have been initialized (e.g. by L</hmmexpect0>()) before calling this function.
 
 Can safely be called sequentially for incremental reestimation.
 
@@ -506,6 +523,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 *hmmexpectq = \&PDL::hmmexpectq;
+
 
 
 =pod
@@ -598,6 +616,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 
+
 =head2 hmmviterbiq
 
 =for sig
@@ -646,6 +665,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 
+
 =head2 hmmpath
 
 =for sig
@@ -689,6 +709,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 
+
 =head2 hmmpathq
 
 =for sig
@@ -724,6 +745,7 @@ It will set the bad-value flag of all output piddles if the flag is set for any 
 
 
 *hmmpathq = \&PDL::hmmpathq;
+
 
 
 
